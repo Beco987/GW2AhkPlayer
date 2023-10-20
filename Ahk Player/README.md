@@ -9,3 +9,8 @@
 * Install <a href="https://www.autohotkey.com/" alt="AutoHotkey">AutoHotkey</a>
 </section>
 
+### Updating
+
+* Download the latest release, extract it into a new folder, then copy and paste your exisiting songs folder and data.csv into the newly created Ahk Player Directory.
+</section>
+
