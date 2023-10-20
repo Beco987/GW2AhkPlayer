@@ -11,6 +11,7 @@
 
 ### Updating
 
-* Download the latest release, extract it into a new folder, then copy and paste your exisiting songs folder and data.csv into the newly created Ahk Player Directory.
+* 1) Download the latest release, extract it into a new folder.
+* 2) Copy and paste your exisiting songs folder and data.csv into the newly created Ahk Player Directory.
 </section>
 
