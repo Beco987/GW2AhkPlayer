@@ -1,0 +1,11 @@
+Added Settings Menu
+	- Option to change the octave delay
+	- Enable/Disable Mouse Mode
+	- Calibrate Mouse Mode
+	- Always On Top Mode
+	- Transparent Mode
+Changed Pause/Stop to not affect the whole application
+Allow for bulk ahk imports
+Changed the layout for the Listview slightly
+Added a stop button
+Added a couple more songs!
