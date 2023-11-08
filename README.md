@@ -1,7 +1,7 @@
 <section id="about">
 
 # About GW2AP
-  <p> GW2AP is an automated music player for playing Ahk scripts in Guild Wars 2.It currently doesn't work on Flute, Horn, or Choir Bell</p>
+  <p> GW2AP is an automated music player for playing Ahk scripts in Guild Wars 2. It currently doesn't work on Flute, Horn, or Choir Bell.</p>
 </section>
 
 ### Prerequisites
