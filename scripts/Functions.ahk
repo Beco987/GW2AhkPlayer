@@ -1,5 +1,8 @@
-﻿#SingleInstance Force
+#SingleInstance Force
 #NoEnv
+global Keys := []
+global nextIndex := 0
+
 ;------------------------------- Functions ------------------------------;
 ;------- Mouse Calibration --------;
 CalibrateMouse:
@@ -194,16 +197,15 @@ return
 
 ;------- Main Song Player ------;
 AhkPlayer:
-Keys := []
-noteOrSleep := []
-KeysToPlay := []
-SleepNext := []
-nkey = 0
-global notif := false
-nchord := ""
+	counter := new SecondCounter()
+	Keys := []
+	Delays := []
+	nkey = 0
+	global notif := false
+	nchord := ""
 
-global Delay2 := Delay / 10
-global isSleep := false
+	global Delay2 := Ceil(Delay / 10)
+	global isSleep := false
 
 	Data := []
 	ToWrite := ""
@@ -226,198 +228,188 @@ global isSleep := false
 	FileAppend, %toWrite%, Data.csv
 	Gosub, ReloadSongs
 
-Loop, read, Songs\%HighlightedSong%.ahk
+	nchord := ""
+	Loop, read, Songs\%HighlightedSong%.ahk
 	{
-   		Loop, parse, A_LoopReadLine, %A_Space%
-    		{
-			var = %A_Loopfield%
-			if (isSleep = true){
-				if(notif = true){
-					nChord := ""
-				}
-				if (nChord > ""){
-					Keys.Push(nChord)
-					NoteOrSleep.Push(1)
-					nChord := ""
-				}
-				Keys.Push(var)
-				NoteOrSleep.Push(0)
-				isSleep := false
-				notif := false
-			}else if (notif = true){
-				if (nChord > ""){
-					Keys.Push(nChord)
-					NoteOrSleep.Push(1)
-					nChord := ""
-				}
-				notif := false
-			}else{
-			if (var = "{Numpad1"){
-				nkey = 1
-			}
-			if (var = "{Numpad2"){
-				nkey = 2
-			}
-			if (var = "{Numpad3"){
-				nkey = 3
-			}
-			if (var = "{Numpad4"){
-				nkey = 4
-			}
-			if (var = "{Numpad5"){
-				nkey = 5
-			}
-			if (var = "{Numpad6"){
-				nkey = 6
-			}
-			if (var = "{Numpad7"){
-				nkey = 7
-			}
-			if (var = "{Numpad8"){
-				nkey = 8
-			}
-			if (var = "{Numpad9}"){
-				nkey = 0
-				nchord := nchord . nKey
-				notif := true
-			}
-			if (var = "{Numpad0}"){
-				nkey = 9
-				nchord := nchord . nKey
-				notif := true
-			}
-			if (var = "down}"){
-				nchord := nchord . nKey
-			}
-			if (var = "up}"){
-				notif := true
-			}
-			}
-			if (var = "Sleep,"){
-				isSleep := true
-			}
-    		}
-	}
-	
-	klen := Keys.Length()
-	toLoop = 1
-	Loop %klen%
-	{
-		isNote := NoteOrSleep[toLoop]
-		toPlay := Keys[toLoop]
-		isNextNote := NoteOrSleep[toLoop + 1]
-		toPlayNext := Keys[toLoop + 1]
-		if (isNote = 0){
-			if ((toPlayNext = 0) || (toPlayNext = 9))
+		var := A_LoopReadLine
+		StringReplace, var, var, Numpad1 down, Numpad1 down, UseErrorLevel
+   		one := ErrorLevel
+		StringReplace, var, var, Numpad2 down, Numpad2 down, UseErrorLevel
+   		two := ErrorLevel
+		StringReplace, var, var, Numpad3 down, Numpad3 down, UseErrorLevel
+   		three := ErrorLevel
+		StringReplace, var, var, Numpad4 down, Numpad4 down, UseErrorLevel
+   		four := ErrorLevel
+		StringReplace, var, var, Numpad5 down, Numpad5 down, UseErrorLevel
+   		five := ErrorLevel
+		StringReplace, var, var, Numpad6 down, Numpad6 down, UseErrorLevel
+   		six := ErrorLevel
+		StringReplace, var, var, Numpad7 down, Numpad7 down, UseErrorLevel
+   		seven := ErrorLevel
+		StringReplace, var, var, Numpad8 down, Numpad8 down, UseErrorLevel
+   		eight := ErrorLevel
+		StringReplace, var, var, Numpad9, Numpad9, UseErrorLevel
+   		zero := ErrorLevel
+		StringReplace, var, var, Numpad0, Numpad0, UseErrorLevel
+   		nine := ErrorLevel
+		str := "Sleep, "
+		StringReplace, var, var, %str%, %str%, UseErrorLevel
+   		isSleep := ErrorLevel
+
+		if (one > 0)
+			nchord .= "1"
+		else if (two > 0)
+			nchord .= "2"
+		else if (three > 0)
+			nchord .= "3"
+		else if (four > 0)
+			nchord .= "4"
+		else if (five > 0)
+			nchord .= "5"
+		else if (six > 0)
+			nchord .= "6"
+		else if (seven > 0)
+			nchord .= "7"
+		else if (eight > 0)
+			nchord .= "8"
+		else if (nine > 0)
+			nchord .= "9"
+		else if (zero > 0)
+			nchord .= "0"
+		else if (isSleep > 0)
 			{
-				toSleep := toPlay - Delay
-				if (toSleep > 0)
-				{
-					KeysToPlay.Push(Delay)
-					SleepNext.Push(0)
-					KeysToPlay.Push(toPlayNext)
-					SleepNext.Push(1)
-					KeysToPlay.Push(toSleep)
-					SleepNext.Push(0)
-					toLoop++
-				}else{
-					KeysToPlay.Push(toPlay)
-					SleepNext.Push(0)
-				}
-			}else{
-					KeysToPlay.Push(toPlay)
-					SleepNext.Push(0)
-				
-				}
-		}else{
-			KeysToPlay.Push(toPlay)
-			SleepNext.Push(1)
-		}
-		toLoop++
+				toSleep := StrReplace(var, "Sleep, ")
+				Keys.Push(nchord)
+				Delays.Push(toSleep)
+				nchord := ""
+			}
+
 	}
-	klen := KeysToPlay.Length()
-	
+	klen := Keys.Length()
+	slen := Delays.Length()
+
 	Loop %klen%
 	{
 		if (StopSong = true)
 			{
 				break
 			}
-		isNote := SleepNext[A_Index]
-		toPlay := KeysToPlay[A_Index]
-		if (isNote = 1){
-			Loop, parse, toPlay
+		SleepDelay := Delays[A_Index]
+		toPlay := Keys[A_Index]
+		nextIndex := A_Index + 1
+		counter.Stop()
+		Loop, parse, toPlay
+		{
+			var := A_LoopField
+			
+			if ((var = 9) || (var = 0))
 			{
-				var := A_LoopField
-				if ((var = 9) || (var = 0))
+				if (EnableDelays == 1)
 				{
-					if (EnableDelays == 1)
+					;DLLCall Sleeps For More Accuracy
+					DllCall("QueryPerformanceFrequency", "Int64*", 1)
+					DllCall("QueryPerformanceCounter", "Int64*", startTime)
+					dif := Floor((startTime - endTime)/10000)
+					
+					if (dif < Delay)
 						{
-							
-							;DLLCall Sleeps For More Accuracy
-							DllCall("QueryPerformanceFrequency", "Int64*", 1)
-							DllCall("QueryPerformanceCounter", "Int64*", startTime)
-							dif := Floor((startTime - endTime)/10000)
-							if (dif < Delay)
-								{
-									dif := Delay - dif
-									Sleep, %dif%
-								}
-							DllCall("QueryPerformanceCounter", "Int64*", endTime)
-						}	
-				}
-				if (EnableClicks)
-					{
-						if (var = 1)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse1x% y%Mouse1y%
+							dif := Delay - dif
+							Sleep, %dif%
 						}
-						else if (var = 2)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse2x% y%Mouse2y%
-						}
-						else if (var = 3)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse3x% y%Mouse3y%
-						}
-						else if (var = 4)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse4x% y%Mouse4y%
-						}
-						else if (var = 5)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse5x% y%Mouse5y%
-						}
-						else if (var = 6)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse6x% y%Mouse6y%
-						}
-						else if (var = 7)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse7x% y%Mouse7y%
-						}
-						else if (var = 8)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse8x% y%Mouse8y%
-						}
-						else if (var = 9)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse9x% y%Mouse9y%
-						}
-						else if (var = 0)
-						{
-							ControlClick,, Guild Wars 2, , Left, 1, x%Mouse10x% y%Mouse10y%
-						}
-					}
-					else
-					{
-						ControlSend,, %var%, Guild Wars 2
-					}
+					DllCall("QueryPerformanceCounter", "Int64*", endTime)
+				}	
 			}
-		}else{
-			SleepDelay = %toPlay%
-			SleepDelay *= %DefaultTempo%
-			Sleep, %SleepDelay%
+			if (EnableClicks)
+			{
+				if (var = 1)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse1x% y%Mouse1y%
+				}
+				else if (var = 2)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse2x% y%Mouse2y%
+				}
+				else if (var = 3)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse3x% y%Mouse3y%
+				}
+				else if (var = 4)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse4x% y%Mouse4y%
+				}
+				else if (var = 5)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse5x% y%Mouse5y%
+				}
+				else if (var = 6)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse6x% y%Mouse6y%
+				}
+				else if (var = 7)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse7x% y%Mouse7y%
+				}
+				else if (var = 8)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse8x% y%Mouse8y%
+				}
+				else if (var = 9)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse9x% y%Mouse9y%
+				}
+				else if (var = 0)
+				{
+					ControlClick,, Guild Wars 2, , Left, 1, x%Mouse10x% y%Mouse10y%
+				}
+			}
+			else
+			{
+				ControlSend,, %var%, Guild Wars 2
+			}
 		}
+		counter.Start()
+		SleepDelay *= %DefaultTempo%
+		Sleep, %SleepDelay%
 	}
 return
+
+class SecondCounter {
+    __New() {
+        this.interval := 1
+        this.count := 1
+        ; Tick() has an implicit parameter "this" which is a reference to
+        ; the object, so we need to create a function which encapsulates
+        ; "this" and the method to call:
+        this.timer := ObjBindMethod(this, "Tick")
+    }
+    Start() {
+        ; Known limitation: SetTimer requires a plain variable reference.
+        timer := this.timer
+		this.count := 0
+        SetTimer % timer, % this.interval
+        ;ToolTip % "Counter started"
+    }
+    Stop() {
+        ; To turn off the timer, we must pass the same object as before:
+        timer := this.timer
+		this.count := 0
+        SetTimer % timer, Off
+        ;ToolTip % "Counter stopped at " this.count
+    }
+    ; In this example, the timer calls this method:
+    Tick() {
+		this.count++
+		if (this.count >= Delay2){
+			first := SubStr(Keys[NextIndex], 1, 1)
+			if ((first = 0) || (first = 9))
+			{
+				ControlSend,, {%first%}, Guild Wars 2
+				DllCall("QueryPerformanceCounter", "Int64*", endTime)
+				newStr := SubStr(Keys[NextIndex], 2)
+				Keys[NextIndex] := newStr
+			}
+			this.Stop()
+			this.count := 0
+		}
+    }
+}
